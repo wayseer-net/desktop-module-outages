@@ -94,3 +94,18 @@ func TestRetriesBackOffAndWaitAsLongAsIODAAsks(t *testing.T) {
 		}
 	}
 }
+
+func TestEntitiesAreSentBeforeTheSignalsAreRead(t *testing.T) {
+	f, api := serve(t)
+	f.answer("signals/raw/country/ET,NZ,TN?datasource=bgp", `{"error": "the signal store is down", "data": null}`)
+	m := at(t, api, "", recorded)
+	sink := sdktest.Run(t, func(ctx context.Context, s *sdktest.Sink) error { return m.Run(ctx, s) })
+	sink.WaitFor(t, 1)
+	if n := len(sink.Sets()[0].Upserts); n != 3 {
+		t.Errorf("snapshot of %d entities", n)
+	}
+	sdktest.Eventually(t, func() bool {
+		err := m.Health().Err
+		return err != nil && strings.Contains(err.Error(), "the signal store is down")
+	})
+}

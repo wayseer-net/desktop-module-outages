@@ -23,7 +23,11 @@ func TestBadResponsesAreErrors(t *testing.T) {
 	} {
 		f, api := serve(t)
 		f.answer(c.ask, c.body)
-		_, _, err := at(t, api, "", recorded).refresh(context.Background())
+		m := at(t, api, "", recorded)
+		_, _, err := m.refresh(context.Background())
+		if err == nil {
+			err = m.readSignals(context.Background())
+		}
 		if err == nil || !strings.Contains(err.Error(), c.want) {
 			t.Errorf("%s answering %s: %v, want %q", c.ask, c.body, err, c.want)
 		}

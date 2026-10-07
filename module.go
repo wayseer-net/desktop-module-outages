@@ -75,8 +75,9 @@ func (m *Module) Configure(_ context.Context, cfg sdk.Config) error {
 	return nil
 }
 
-// Run reads IODA every interval: a snapshot after the first good read, then deltas.
-// A failed read shows in Health and is retried with back-off; Run returns only when ctx ends.
+// Run reads IODA every interval: a snapshot after the first good read, then deltas, each sent
+// before the signals are read, as they take longest. A failed read shows in Health and is
+// retried with back-off; Run returns only when ctx ends.
 func (m *Module) Run(ctx context.Context, sink sdk.Sink) error {
 	m.mu.Lock()
 	m.tracker.Reset()
@@ -96,16 +97,19 @@ func (m *Module) Run(ctx context.Context, sink sdk.Sink) error {
 		if ctx.Err() != nil {
 			return nil
 		}
+		if err == nil {
+			if err := send(ctx, cs); err != nil {
+				return err
+			}
+			send, err = sink.Delta, m.readSignals(ctx)
+		}
 		m.health.Store(&sdk.Health{Err: err, Note: note})
 		if err != nil {
 			t.Reset(retryIn(err, wait, every))
 			wait = min(2*wait, every)
 			continue
 		}
-		if err := send(ctx, cs); err != nil {
-			return err
-		}
-		send, wait = sink.Delta, firstRetry
+		wait = firstRetry
 		t.Reset(every)
 	}
 }
@@ -118,39 +122,38 @@ func retryIn(err error, backoff, every time.Duration) time.Duration {
 	return min(backoff, every)
 }
 
-// refresh reads IODA and returns what changed since the last send, with an event for each
-// outage that began or ended, and a note of what IODA doesn't know.
+// refresh reads the entities and their outages, and returns what changed since the last send,
+// with an event for each outage that began or ended, and a note of what IODA doesn't know.
 func (m *Module) refresh(ctx context.Context) (*sdk.ChangeSet, string, error) {
 	st, err := m.read(ctx, true)
 	if err != nil {
 		return nil, "", err
 	}
-	pts, err := m.readSignals(ctx, &st)
-	if err != nil {
-		return nil, "", err
-	}
-	return m.apply(&st, pts), strings.Join(st.w.notes, "; "), nil
-}
-
-// readSignals reads the signals since the last read, less their lag.
-func (m *Module) readSignals(ctx context.Context, st *state) (map[sdk.SeriesRef][]sdk.Point, error) {
-	m.mu.Lock()
-	c, o, since := m.api, m.opts, signalsSince(m.signaled, st.until, m.opts.Lookback)
-	m.mu.Unlock()
-	return fetchSignals(ctx, c, &st.w, &o, since, st.until)
-}
-
-// apply keeps a read and its points, and returns what changed with the outages' events.
-func (m *Module) apply(st *state, pts map[sdk.SeriesRef][]sdk.Point) *sdk.ChangeSet {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	evs, known := news(m.name, &st.w, st.outages, st.until, m.known)
-	m.world, m.known, m.signaled = st.w, known, st.until
-	m.record(pts, st.until.Add(-m.opts.Lookback))
+	m.world, m.known = st.w, known
 	m.events.Add(evs...)
 	cs := m.tracker.Changes(st.w.ents, st.w.edges, st.until)
 	cs.Events = evs
-	return cs
+	return cs, strings.Join(st.w.notes, "; "), nil
+}
+
+// readSignals reads the world's signals since the last read, less their lag, into its series.
+func (m *Module) readSignals(ctx context.Context) error {
+	until := m.now()
+	m.mu.Lock()
+	c, o, w, since := m.api, m.opts, m.world, signalsSince(m.signaled, until, m.opts.Lookback)
+	m.mu.Unlock()
+	pts, err := fetchSignals(ctx, c, &w, &o, since, until)
+	if err != nil {
+		return err
+	}
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.signaled = until
+	m.record(pts, until.Add(-o.Lookback))
+	return nil
 }
 
 // state is one read of IODA: the entities with their status, and the outages behind it.

@@ -26,7 +26,7 @@ func queried(t *testing.T, m *Module, metric string, ents ...sdk.EntityRef) []sd
 func TestEachSignalIsASeries(t *testing.T) {
 	_, api := serve(t)
 	m := at(t, api, "", recorded)
-	refreshed(t, m)
+	signaled(t, m)
 	got := queried(t, m, "ioda.bgp", "out/outages%2Fcountry/ET")
 	if len(got) != 1 || got[0].Unit != sdk.UnitCount {
 		t.Fatalf("series %+v", got)
@@ -45,7 +45,7 @@ func TestEachSignalIsASeries(t *testing.T) {
 func TestEveryEntityWithTheMetricHasASeries(t *testing.T) {
 	_, api := serve(t)
 	m := at(t, api, "countries: [NZ]\nregions: true\nasns: [9500]\nsignals: [bgp, gtr-norm]", recorded)
-	refreshed(t, m)
+	signaled(t, m)
 	if got := queried(t, m, "ioda.bgp"); len(got) != 4 {
 		t.Errorf("bgp series %+v", got)
 	}
@@ -91,5 +91,14 @@ func TestSignalsAreAskedForSinceTheLastReadLessTheirLag(t *testing.T) {
 	last := recorded.Add(-5 * time.Minute)
 	if got := signalsSince(last, recorded, lookback); !got.Equal(last.Add(-signalLag)) {
 		t.Errorf("next read from %v", got)
+	}
+}
+
+// signaled reads the fake IODA once, as Run does, signals and all.
+func signaled(t *testing.T, m *Module) {
+	t.Helper()
+	refreshed(t, m)
+	if err := m.readSignals(context.Background()); err != nil {
+		t.Fatal(err)
 	}
 }
