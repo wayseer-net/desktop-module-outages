@@ -1,7 +1,7 @@
 # Thin wrappers over go commands and scripts/; every target works without make too.
 # The linter is built outside any workspace, which -modfile needs, and lints in whichever is set.
 LINT = $(shell GOWORK=off go tool -n -modfile=tools/go.mod golangci-lint)
-PROGRAM = wayseer-inventory
+PROGRAM = wayseer-outages
 WAYSEER ?= wayseer
 DIST ?= dist
 .DEFAULT_GOAL := help

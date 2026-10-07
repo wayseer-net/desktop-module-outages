@@ -1,4 +1,4 @@
-package inventory_test
+package outages_test
 
 import (
 	"os/exec"

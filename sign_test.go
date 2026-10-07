@@ -1,4 +1,4 @@
-package inventory_test
+package outages_test
 
 import (
 	"bytes"
@@ -35,7 +35,7 @@ func TestMakeSignPackagesTheModule(t *testing.T) {
 		t.Fatalf("make sign wrote %v, want one package", pkgs)
 	}
 	m := readPackage(t, pkgs[0])
-	if m.ID != "wayseer-labs/inventory" || m.OS != runtime.GOOS || m.Arch != runtime.GOARCH {
+	if m.ID != "wayseer-labs/outages" || m.OS != runtime.GOOS || m.Arch != runtime.GOARCH {
 		t.Errorf("the package's manifest is %s for %s/%s", m.ID, m.OS, m.Arch)
 	}
 }
@@ -68,7 +68,7 @@ func build(t *testing.T, core, pkg, dir string) string {
 }
 
 // testIdentity makes a throwaway root, a developer signing key it certifies, and a developer
-// key with a certificate for the manifest's namespace, inventory; it returns the key's and the cert's paths.
+// key with a certificate for the manifest's namespace, outages; it returns the key's and the cert's paths.
 func testIdentity(t *testing.T, wayseer, licenser, dir string) (key, cert string) {
 	t.Helper()
 	root, signer := filepath.Join(dir, "root.key"), filepath.Join(dir, "signer.key")
@@ -83,7 +83,7 @@ func testIdentity(t *testing.T, wayseer, licenser, dir string) (key, cert string
 	if err := os.WriteFile(pub, m[1], 0o600); err != nil {
 		t.Fatal(err)
 	}
-	run(t, dir, licenser, "dev-cert", "-licence-id", "L-0001", "-namespace", "inventory", "-pub", pub, cert)
+	run(t, dir, licenser, "dev-cert", "-licence-id", "L-0001", "-namespace", "outages", "-pub", pub, cert)
 	return key, cert
 }
 

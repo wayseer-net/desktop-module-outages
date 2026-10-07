@@ -1,4 +1,4 @@
-module github.com/wayseer-net/desktop-module-template
+module github.com/wayseer-net/desktop-module-outages
 
 go 1.27
 

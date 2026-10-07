@@ -1,4 +1,4 @@
-package inventory
+package outages
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 )
 
 // Kind is the module kind in config.
-const Kind = "inventory"
+const Kind = "outages"
 
 const version = "1"
 

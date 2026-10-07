@@ -1,10 +1,10 @@
 # What the module is and may do; `wayseer dev sign` adds its program's sha256, os and arch.
-id: wayseer-labs/inventory   # <your certificate's namespace>/<name>
-name: Inventory
-description: Entities read from a JSON inventory at a URL.
-version: 0.1.3               # raise it for each package you sign
+id: wayseer-labs/outages
+name: Internet outages
+description: Internet outages from IODA (Georgia Tech) for countries, regions and networks.
+version: 0.1.0
 contract: 1
-namespace: inventory         # your certificate's; for the marketplace, the one Wayseer allocates
+namespace: outages            # allocated to this module by the marketplace
 # The kinds actions apply to, core or in your namespace, and the actions Wayseer may offer.
 kinds:
   - {kind: host}

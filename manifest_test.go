@@ -1,4 +1,4 @@
-package inventory_test
+package outages_test
 
 import (
 	"os"
@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	inventory "github.com/wayseer-net/desktop-module-template"
+	outages "github.com/wayseer-net/desktop-module-outages"
 	"wayseer.dev/sdk/manifest"
 )
 
@@ -15,7 +15,7 @@ import (
 // that offers more.
 func TestManifestDeclaresEveryAction(t *testing.T) {
 	m := readManifest(t)
-	for _, a := range inventory.New().Actions() {
+	for _, a := range outages.New().Actions() {
 		i := slices.IndexFunc(m.Actions, func(d manifest.Action) bool { return d.ID == a.ID })
 		if i < 0 {
 			t.Errorf("manifest.yaml doesn't declare %s", a.ID)
@@ -29,8 +29,8 @@ func TestManifestDeclaresEveryAction(t *testing.T) {
 			t.Errorf("manifest.yaml declares %s as %+v; Actions offers %+v", a.ID, d, a)
 		}
 	}
-	if len(m.Actions) != len(inventory.New().Actions()) {
-		t.Errorf("manifest.yaml declares %d actions; Actions offers %d", len(m.Actions), len(inventory.New().Actions()))
+	if len(m.Actions) != len(outages.New().Actions()) {
+		t.Errorf("manifest.yaml declares %d actions; Actions offers %d", len(m.Actions), len(outages.New().Actions()))
 	}
 }
 
