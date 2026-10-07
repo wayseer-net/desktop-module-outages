@@ -25,7 +25,7 @@ func init() { sdk.Register(Kind, func() sdk.Module { return New() }) }
 type Module struct {
 	health atomic.Pointer[sdk.Health]
 
-	now    func() time.Time // the clock; tests set it
+	now func() time.Time // the clock; tests set it
 
 	mu      sync.Mutex // guards what follows, shared by Run and Discover
 	name    sdk.ModuleID
