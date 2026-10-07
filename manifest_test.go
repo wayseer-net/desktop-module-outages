@@ -1,36 +1,35 @@
-package outages_test
+package outages
 
 import (
+	"net/url"
 	"os"
 	"slices"
 	"strings"
 	"testing"
 
-	outages "github.com/wayseer-net/desktop-module-outages"
 	"wayseer.dev/sdk/manifest"
 )
 
-// TestManifestDeclaresEveryAction keeps manifest.yaml in step with Actions: Wayseer offers a
-// packaged module's action only as its manifest declares it, and the marketplace refuses one
-// that offers more.
-func TestManifestDeclaresEveryAction(t *testing.T) {
+// TestManifestDeclaresWhatTheModuleDoes keeps manifest.yaml in step with the module: its kinds,
+// no actions, no keyring, and IODA's host as its only endpoint.
+func TestManifestDeclaresWhatTheModuleDoes(t *testing.T) {
 	m := readManifest(t)
-	for _, a := range outages.New().Actions() {
-		i := slices.IndexFunc(m.Actions, func(d manifest.Action) bool { return d.ID == a.ID })
-		if i < 0 {
-			t.Errorf("manifest.yaml doesn't declare %s", a.ID)
-			continue
-		}
-		var kinds []string
-		for _, k := range a.Kinds {
-			kinds = append(kinds, string(k))
-		}
-		if d := m.Actions[i]; !slices.Equal(d.Kinds, kinds) || d.Title != a.Title || d.Changes != a.Changes {
-			t.Errorf("manifest.yaml declares %s as %+v; Actions offers %+v", a.ID, d, a)
-		}
+	var kinds []string
+	for _, k := range m.Kinds {
+		kinds = append(kinds, k.Kind)
 	}
-	if len(m.Actions) != len(outages.New().Actions()) {
-		t.Errorf("manifest.yaml declares %d actions; Actions offers %d", len(m.Actions), len(outages.New().Actions()))
+	if want := []string{string(kindCountry), string(kindRegion), string(kindASN)}; !slices.Equal(kinds, want) {
+		t.Errorf("manifest.yaml declares kinds %v, want %v", kinds, want)
+	}
+	api, err := url.Parse(defaultAPI)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := []string{api.Host + ":443"}; !slices.Equal(m.Network, want) {
+		t.Errorf("manifest.yaml declares network %v, want %v", m.Network, want)
+	}
+	if len(m.Actions) != 0 || m.Secrets {
+		t.Errorf("manifest.yaml declares actions %v and secrets %v", m.Actions, m.Secrets)
 	}
 }
 

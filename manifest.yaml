@@ -2,19 +2,12 @@
 id: wayseer-labs/outages
 name: Internet outages
 description: Internet outages from IODA (Georgia Tech) for countries, regions and networks.
+homepage: https://github.com/wayseer-net/desktop-module-outages
 version: 0.1.0
 contract: 1
 namespace: outages            # allocated to this module by the marketplace
-# The kinds actions apply to, core or in your namespace, and the actions Wayseer may offer.
 kinds:
-  - {kind: host}
-  - {kind: service}
-  - {kind: database}
-  # - {kind: inventory/rack, label: Rack, plural: Racks, like: host}
-actions:
-  - id: recheck
-    title: Recheck
-    changes: "Nothing: it reads the item from the inventory again and says its status"
-    kinds: [host, service, database]
-network: [configured by user]
-secrets: true
+  - {kind: outages/country, label: Country, plural: Countries, like: cluster}
+  - {kind: outages/region, label: Region, plural: Regions, like: node}
+  - {kind: outages/asn, label: Network, plural: Networks, like: service}
+network: [api.ioda.inetintel.cc.gatech.edu:443]
