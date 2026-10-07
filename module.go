@@ -25,15 +25,18 @@ func init() { sdk.Register(Kind, func() sdk.Module { return New() }) }
 type Module struct {
 	health atomic.Pointer[sdk.Health]
 
+	now    func() time.Time // the clock; tests set it
+
 	mu      sync.Mutex // guards what follows, shared by Run and Discover
 	name    sdk.ModuleID
 	opts    options
+	api     *client
 	tracker sdk.Tracker
 	world   world // as last read
 }
 
 // New makes an unconfigured module.
-func New() *Module { return &Module{} }
+func New() *Module { return &Module{now: time.Now} }
 
 // Info describes the module.
 func (m *Module) Info() sdk.Info {
@@ -53,7 +56,8 @@ func (m *Module) Configure(_ context.Context, cfg sdk.Config) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.name, m.opts = cfg.Name, o
-	m.world = world{}
+	m.api = newClient(o.API, o.Timeout)
+	m.world = newWorld()
 	m.health.Store(&sdk.Health{})
 	return nil
 }
@@ -103,8 +107,11 @@ func (m *Module) refresh(ctx context.Context) (*sdk.ChangeSet, error) {
 	return m.tracker.Changes(w.ents, w.edges, time.Now()), nil
 }
 
-func (m *Module) read(context.Context) (world, error) {
-	return world{ents: map[sdk.EntityRef]sdk.Entity{}, edges: map[sdk.EdgeKey]sdk.Edge{}}, nil
+func (m *Module) read(ctx context.Context) (world, error) {
+	m.mu.Lock()
+	c, name, o := m.api, m.name, m.opts
+	m.mu.Unlock()
+	return list(ctx, c, name, &o)
 }
 
 // Health reports whether the last read worked.

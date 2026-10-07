@@ -1,0 +1,67 @@
+{
+ "type": "signals",
+ "error": null,
+ "data": [
+  [
+   {
+    "entityType": "country",
+    "entityCode": "ET",
+    "entityName": "Ethiopia",
+    "entityFqid": "geo.provider.AF.ET",
+    "datasource": "merit-nt",
+    "subtype": "",
+    "from": 1791374400,
+    "until": 1791381600,
+    "step": 1800,
+    "nativeStep": 300,
+    "values": [
+     26.933333333333334,
+     29.233333333333334,
+     23.933333333333334,
+     23.217391304347824
+    ]
+   }
+  ],
+  [
+   {
+    "entityType": "country",
+    "entityCode": "NZ",
+    "entityName": "New Zealand",
+    "entityFqid": "geo.provider.OC.NZ",
+    "datasource": "merit-nt",
+    "subtype": "",
+    "from": 1791374400,
+    "until": 1791381600,
+    "step": 1800,
+    "nativeStep": 300,
+    "values": [
+     6.433333333333334,
+     6.733333333333333,
+     7.333333333333333,
+     6.739130434782608
+    ]
+   }
+  ],
+  [
+   {
+    "entityType": "country",
+    "entityCode": "TN",
+    "entityName": "Tunisia",
+    "entityFqid": "geo.provider.AF.TN",
+    "datasource": "merit-nt",
+    "subtype": "",
+    "from": 1791374400,
+    "until": 1791381600,
+    "step": 1800,
+    "nativeStep": 300,
+    "values": [
+     163.5,
+     168.86666666666667,
+     171.86666666666667,
+     176.69565217391303
+    ]
+   }
+  ]
+ ],
+ "copyright": "This data is Copyright (c) 2021-2025 Georgia Tech Research Corporation. All Rights Reserved."
+}

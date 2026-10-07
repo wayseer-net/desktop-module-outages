@@ -1,0 +1,27 @@
+{
+ "type": "signals",
+ "error": null,
+ "data": [
+  [
+   {
+    "entityType": "asn",
+    "entityCode": "9500",
+    "entityName": "AS9500 (VODAFONE-TRANSIT-AS)",
+    "entityFqid": "asn.9500",
+    "datasource": "bgp",
+    "subtype": "",
+    "from": 1791374400,
+    "until": 1791381600,
+    "step": 1800,
+    "nativeStep": 300,
+    "values": [
+     3349,
+     3349,
+     3349,
+     3349
+    ]
+   }
+  ]
+ ],
+ "copyright": "This data is Copyright (c) 2021-2025 Georgia Tech Research Corporation. All Rights Reserved."
+}

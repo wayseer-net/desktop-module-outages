@@ -1,0 +1,31 @@
+{
+ "type": "entities.lookup",
+ "error": null,
+ "data": [
+  {
+   "code": "3046",
+   "name": "Manawatu-Wanganui",
+   "type": "region",
+   "subnames": [],
+   "attrs": {
+    "fqid": "geo.netacuity.OC.NZ.3046",
+    "country_code": "NZ",
+    "country_name": "New Zealand",
+    "ne_region_id": "3334"
+   }
+  },
+  {
+   "code": "3047",
+   "name": "Gisborne District",
+   "type": "region",
+   "subnames": [],
+   "attrs": {
+    "fqid": "geo.netacuity.OC.NZ.3047",
+    "country_code": "NZ",
+    "country_name": "New Zealand",
+    "ne_region_id": "3396"
+   }
+  }
+ ],
+ "copyright": "This data is Copyright (c) 2021-2025 Georgia Tech Research Corporation. All Rights Reserved."
+}

@@ -1,0 +1,55 @@
+{
+ "type": "outages.events",
+ "error": null,
+ "data": [
+  {
+   "entity": {
+    "code": "TN",
+    "name": "Tunisia",
+    "subnames": [],
+    "type": "country",
+    "attrs": {
+     "fqid": "geo.netacuity.AF.TN"
+    }
+   },
+   "from": 1790724000,
+   "until": 1791381600,
+   "score": 235515.1662809112,
+   "datasource": "ping-slash24",
+   "method": "median"
+  },
+  {
+   "entity": {
+    "code": "TN",
+    "name": "Tunisia",
+    "subnames": [],
+    "type": "country",
+    "attrs": {
+     "fqid": "geo.netacuity.AF.TN"
+    }
+   },
+   "from": 1791310500,
+   "until": 1791312900,
+   "score": 68.40912121616216,
+   "datasource": "bgp",
+   "method": "median"
+  },
+  {
+   "entity": {
+    "code": "ET",
+    "name": "Ethiopia",
+    "subnames": [],
+    "type": "country",
+    "attrs": {
+     "fqid": "geo.netacuity.AF.ET"
+    }
+   },
+   "from": 1791377400,
+   "until": 1791378300,
+   "score": 82.61617900172118,
+   "datasource": "bgp",
+   "method": "median"
+  }
+ ],
+ "copyright": "This data is Copyright (c) 2021-2025 Georgia Tech Research Corporation. All Rights Reserved."
+}

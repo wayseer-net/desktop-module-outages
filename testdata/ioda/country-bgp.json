@@ -1,0 +1,67 @@
+{
+ "type": "signals",
+ "error": null,
+ "data": [
+  [
+   {
+    "entityType": "country",
+    "entityCode": "ET",
+    "entityName": "Ethiopia",
+    "entityFqid": "geo.provider.AF.ET",
+    "datasource": "bgp",
+    "subtype": "",
+    "from": 1791374400,
+    "until": 1791381600,
+    "step": 1800,
+    "nativeStep": 300,
+    "values": [
+     4648,
+     4562.666666666667,
+     4605.333333333333,
+     4648
+    ]
+   }
+  ],
+  [
+   {
+    "entityType": "country",
+    "entityCode": "NZ",
+    "entityName": "New Zealand",
+    "entityFqid": "geo.provider.OC.NZ",
+    "datasource": "bgp",
+    "subtype": "",
+    "from": 1791374400,
+    "until": 1791381600,
+    "step": 1800,
+    "nativeStep": 300,
+    "values": [
+     20438,
+     20438,
+     20438,
+     20438
+    ]
+   }
+  ],
+  [
+   {
+    "entityType": "country",
+    "entityCode": "TN",
+    "entityName": "Tunisia",
+    "entityFqid": "geo.provider.AF.TN",
+    "datasource": "bgp",
+    "subtype": "",
+    "from": 1791374400,
+    "until": 1791381600,
+    "step": 1800,
+    "nativeStep": 300,
+    "values": [
+     29996,
+     29996,
+     29996,
+     29996
+    ]
+   }
+  ]
+ ],
+ "copyright": "This data is Copyright (c) 2021-2025 Georgia Tech Research Corporation. All Rights Reserved."
+}

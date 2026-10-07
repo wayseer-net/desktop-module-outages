@@ -1,0 +1,16 @@
+{
+ "type": "entities.lookup",
+ "error": null,
+ "data": [
+  {
+   "code": "NZ",
+   "name": "New Zealand",
+   "type": "country",
+   "subnames": [],
+   "attrs": {
+    "fqid": "geo.netacuity.OC.NZ"
+   }
+  }
+ ],
+ "copyright": "This data is Copyright (c) 2021-2025 Georgia Tech Research Corporation. All Rights Reserved."
+}

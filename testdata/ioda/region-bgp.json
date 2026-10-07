@@ -1,0 +1,47 @@
+{
+ "type": "signals",
+ "error": null,
+ "data": [
+  [
+   {
+    "entityType": "region",
+    "entityCode": "3046",
+    "entityName": "Manawatu-Wanganui",
+    "entityFqid": "geo.provider.OC.NZ.3046",
+    "datasource": "bgp",
+    "subtype": "",
+    "from": 1791374400,
+    "until": 1791381600,
+    "step": 1800,
+    "nativeStep": 300,
+    "values": [
+     1471,
+     1471,
+     1471,
+     1471
+    ]
+   }
+  ],
+  [
+   {
+    "entityType": "region",
+    "entityCode": "3047",
+    "entityName": "Gisborne District",
+    "entityFqid": "geo.provider.OC.NZ.3047",
+    "datasource": "bgp",
+    "subtype": "",
+    "from": 1791374400,
+    "until": 1791381600,
+    "step": 1800,
+    "nativeStep": 300,
+    "values": [
+     307,
+     307,
+     307,
+     307
+    ]
+   }
+  ]
+ ],
+ "copyright": "This data is Copyright (c) 2021-2025 Georgia Tech Research Corporation. All Rights Reserved."
+}

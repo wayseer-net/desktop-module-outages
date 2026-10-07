@@ -1,0 +1,19 @@
+{
+ "type": "entities.lookup",
+ "error": null,
+ "data": [
+  {
+   "code": "9500",
+   "name": "AS9500 (VODAFONE-TRANSIT-AS)",
+   "type": "asn",
+   "subnames": [],
+   "attrs": {
+    "fqid": "asn.9500",
+    "ip_count": "857344",
+    "name": "ONENZ-TRANSIT-AS",
+    "org": "One New Zealand Group Limited"
+   }
+  }
+ ],
+ "copyright": "This data is Copyright (c) 2021-2025 Georgia Tech Research Corporation. All Rights Reserved."
+}

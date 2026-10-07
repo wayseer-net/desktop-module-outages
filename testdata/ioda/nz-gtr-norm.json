@@ -1,0 +1,25 @@
+{
+ "type": "signals",
+ "error": null,
+ "data": [
+  [
+   {
+    "entityType": "country",
+    "entityCode": "NZ",
+    "entityName": "New Zealand",
+    "entityFqid": "geo.provider.OC.NZ",
+    "datasource": "gtr-norm",
+    "subtype": "BLENDED",
+    "from": 1791374400,
+    "until": 1791378000,
+    "step": 1800,
+    "nativeStep": 1800,
+    "values": [
+     1,
+     0.27939953250038435
+    ]
+   }
+  ]
+ ],
+ "copyright": "This data is Copyright (c) 2021-2025 Georgia Tech Research Corporation. All Rights Reserved."
+}

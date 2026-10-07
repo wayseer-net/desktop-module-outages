@@ -1,0 +1,3 @@
+out/outages%2Fcountry/ET "Ethiopia" unknown at 8.03,39.09 code=ET
+out/outages%2Fcountry/NZ "New Zealand" unknown at -39.76,172.79 code=NZ
+out/outages%2Fcountry/TN "Tunisia" unknown at 33.69,9.01 code=TN

@@ -1,0 +1,67 @@
+{
+ "type": "signals",
+ "error": null,
+ "data": [
+  [
+   {
+    "entityType": "country",
+    "entityCode": "ET",
+    "entityName": "Ethiopia",
+    "entityFqid": "geo.provider.AF.ET",
+    "datasource": "ping-slash24",
+    "subtype": "",
+    "from": 1791374400,
+    "until": 1791381600,
+    "step": 1800,
+    "nativeStep": 600,
+    "values": [
+     46.666666666666664,
+     48,
+     46.666666666666664,
+     47
+    ]
+   }
+  ],
+  [
+   {
+    "entityType": "country",
+    "entityCode": "NZ",
+    "entityName": "New Zealand",
+    "entityFqid": "geo.provider.OC.NZ",
+    "datasource": "ping-slash24",
+    "subtype": "",
+    "from": 1791374400,
+    "until": 1791381600,
+    "step": 1800,
+    "nativeStep": 600,
+    "values": [
+     3637,
+     3604.3333333333335,
+     3639.6666666666665,
+     3632.6666666666665
+    ]
+   }
+  ],
+  [
+   {
+    "entityType": "country",
+    "entityCode": "TN",
+    "entityName": "Tunisia",
+    "entityFqid": "geo.provider.AF.TN",
+    "datasource": "ping-slash24",
+    "subtype": "",
+    "from": 1791374400,
+    "until": 1791381600,
+    "step": 1800,
+    "nativeStep": 600,
+    "values": [
+     6049.333333333333,
+     6048.333333333333,
+     6052,
+     6049
+    ]
+   }
+  ]
+ ],
+ "copyright": "This data is Copyright (c) 2021-2025 Georgia Tech Research Corporation. All Rights Reserved."
+}
