@@ -2,6 +2,7 @@ package outages
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -73,4 +74,25 @@ func TestTooManyRequestsSaysHowLongToWait(t *testing.T) {
 	if _, ok := retryAfter(errors.New("other")); ok {
 		t.Error("another error asks to wait")
 	}
+}
+
+func TestIODAsHostIsCappedAtTLS12(t *testing.T) {
+	if got := maxTLS(newClient(defaultAPI, time.Second)); got != tls.VersionTLS12 {
+		t.Errorf("IODA's client allows TLS %x, want at most 1.2", got)
+	}
+}
+
+func TestOtherHostsKeepTheDefaultTLS(t *testing.T) {
+	if got := maxTLS(newClient("https://ioda.example.org/v2", time.Second)); got != 0 {
+		t.Errorf("a mirror's client caps TLS at %x, want Go's default", got)
+	}
+}
+
+// maxTLS is the highest TLS version c's transport allows; 0 is Go's default.
+func maxTLS(c *client) uint16 {
+	tr, ok := c.http.Transport.(*http.Transport)
+	if !ok || tr.TLSClientConfig == nil {
+		return 0
+	}
+	return tr.TLSClientConfig.MaxVersion
 }

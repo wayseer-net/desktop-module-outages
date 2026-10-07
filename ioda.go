@@ -2,6 +2,7 @@ package outages
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -26,7 +27,21 @@ type client struct {
 }
 
 func newClient(base string, timeout time.Duration) *client {
-	return &client{base: strings.TrimSuffix(base, "/"), http: &http.Client{Timeout: timeout}}
+	return &client{base: strings.TrimSuffix(base, "/"), http: &http.Client{Timeout: timeout, Transport: transport(base)}}
+}
+
+// iodaHost never answers Go's TLS 1.3 ClientHello (curl's works), so its connections use TLS 1.2.
+const iodaHost = "api.ioda.inetintel.cc.gatech.edu"
+
+// transport is Go's default, capped at TLS 1.2 for iodaHost alone.
+func transport(base string) http.RoundTripper {
+	u, err := url.Parse(base)
+	if err != nil || u.Hostname() != iodaHost {
+		return http.DefaultTransport
+	}
+	tr := http.DefaultTransport.(*http.Transport).Clone()
+	tr.TLSClientConfig = &tls.Config{MinVersion: tls.VersionTLS12, MaxVersion: tls.VersionTLS12}
+	return tr
 }
 
 // envelope is what every IODA response wraps its data in.

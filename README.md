@@ -23,6 +23,9 @@ fills recent points late. IODA states no rate limit; a `429` is waited out as lo
 country takes IODA about 25 seconds, so entities and outages are sent first and the series
 fill in after.
 
+Connections to IODA's host use TLS 1.2: its server never answers the TLS 1.3 handshake Go sends,
+though it answers curl's. Any other `api` keeps Go's defaults.
+
 It keeps only a working set in memory: the entities, each signal's points over the lookback,
 the outages last seen, and the last 1000 events sent. Nothing is written to disk.
 
