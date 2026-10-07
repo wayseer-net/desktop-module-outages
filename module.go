@@ -16,12 +16,12 @@ const Kind = "outages"
 
 const version = "1"
 
-// Waits between reads: retries after a failure back off from retryMin, and entities, which
+// Waits between reads: retries after a failure back off from firstRetry, and entities, which
 // rarely change, are listed again only every relist.
 const (
-	retryMin  = 10 * time.Second
-	relist    = 6 * time.Hour
-	keepEvent = 1000 // events kept for QueryEvents
+	firstRetry = 10 * time.Second
+	relist     = 6 * time.Hour
+	keepEvent  = 1000 // events kept for QueryEvents
 )
 
 // init registers the kind for a build of the app that imports the package.
@@ -85,7 +85,7 @@ func (m *Module) Run(ctx context.Context, sink sdk.Sink) error {
 	send := sink.Snapshot
 	t := time.NewTimer(0)
 	defer t.Stop()
-	wait := retryMin
+	wait := firstRetry
 	for {
 		select {
 		case <-ctx.Done():
@@ -105,7 +105,7 @@ func (m *Module) Run(ctx context.Context, sink sdk.Sink) error {
 		if err := send(ctx, cs); err != nil {
 			return err
 		}
-		send, wait = sink.Delta, retryMin
+		send, wait = sink.Delta, firstRetry
 		t.Reset(every)
 	}
 }

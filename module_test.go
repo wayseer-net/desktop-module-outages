@@ -84,9 +84,9 @@ func TestRetriesBackOffAndWaitAsLongAsIODAAsks(t *testing.T) {
 		backoff, every time.Duration
 		want           time.Duration
 	}{
-		{errors.New("refused"), retryMin, 5 * time.Minute, retryMin},
+		{errors.New("refused"), firstRetry, 5 * time.Minute, firstRetry},
 		{errors.New("refused"), 10 * time.Minute, 5 * time.Minute, 5 * time.Minute},
-		{busy, retryMin, 5 * time.Minute, 2 * time.Minute},
+		{busy, firstRetry, 5 * time.Minute, 2 * time.Minute},
 		{busy, 4 * time.Minute, 5 * time.Minute, 4 * time.Minute},
 	} {
 		if got := retryIn(c.err, c.backoff, c.every); got != c.want {
