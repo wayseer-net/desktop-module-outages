@@ -1,7 +1,7 @@
-out/outages%2Fasn/9500 "AS9500 (VODAFONE-TRANSIT-AS)" unknown unplaced addresses=857344 code=9500 countries=[NZ] org=One New Zealand Group Limited
-out/outages%2Fcountry/NZ "New Zealand" unknown at -39.76,172.79 code=NZ
-out/outages%2Fregion/3046 "Manawatu-Wanganui" unknown at -39.85,175.63 code=3046 country=NZ
-out/outages%2Fregion/3047 "Gisborne District" unknown at -38.34,177.93 code=3047 country=NZ
+out/outages%2Fasn/9500 "AS9500 (VODAFONE-TRANSIT-AS)" ok unplaced addresses=857344 code=9500 countries=[NZ] ioda=https://ioda.inetintel.cc.gatech.edu/asn/9500 org=One New Zealand Group Limited
+out/outages%2Fcountry/NZ "New Zealand" ok at -39.76,172.79 code=NZ ioda=https://ioda.inetintel.cc.gatech.edu/country/NZ
+out/outages%2Fregion/3046 "Manawatu-Wanganui" ok at -39.85,175.63 code=3046 country=NZ ioda=https://ioda.inetintel.cc.gatech.edu/region/3046
+out/outages%2Fregion/3047 "Gisborne District" ok at -38.34,177.93 code=3047 country=NZ ioda=https://ioda.inetintel.cc.gatech.edu/region/3047
 out/outages%2Fasn/9500 member_of out/outages%2Fcountry/NZ
 out/outages%2Fregion/3046 member_of out/outages%2Fcountry/NZ
 out/outages%2Fregion/3047 member_of out/outages%2Fcountry/NZ

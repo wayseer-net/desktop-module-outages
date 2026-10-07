@@ -181,9 +181,9 @@ func (l *lister) missing(typ string, codes []string) {
 	}
 }
 
-// attrsOf is what Detail shows of e: its code, and what IODA says of a region or network.
+// attrsOf is what Detail shows of e: its code and IODA page, and what IODA says of a region or network.
 func attrsOf(e *entity, countries []string) map[string]sdk.Value {
-	a := map[string]sdk.Value{"code": sdk.String(e.Code)}
+	a := map[string]sdk.Value{"code": sdk.String(e.Code), "ioda": sdk.String(link(e.Type, e.Code))}
 	switch e.Type {
 	case "region":
 		a["country"] = sdk.String(e.attr("country_code"))

@@ -2,9 +2,12 @@ package outages
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
+	"time"
 
 	"wayseer.dev/sdk"
 	"wayseer.dev/sdk/sdktest"
@@ -35,4 +38,59 @@ func TestConformance(t *testing.T) {
 		Failing:  "api: " + closed.URL + "/v2",
 		Manifest: "manifest.yaml",
 	})
+}
+
+func TestEntitiesAreListedAgainOnlyEverySixHours(t *testing.T) {
+	f, api := serve(t)
+	m := at(t, api, "", recorded)
+	refreshed(t, m)
+	refreshed(t, m)
+	const entities, events = "entities/query?entityType=country", "outages/events?entityType=country"
+	if f.count(entities) != 1 || f.count(events) != 2 {
+		t.Errorf("asked for entities %d times and outages %d", f.count(entities), f.count(events))
+	}
+	m.now = func() time.Time { return recorded.Add(relist) }
+	refreshed(t, m)
+	if f.count(entities) != 2 {
+		t.Errorf("asked for entities %d times after %v", f.count(entities), relist)
+	}
+}
+
+func TestCodesIODADoesntKnowAreANote(t *testing.T) {
+	_, api := serve(t)
+	m := at(t, api, "countries: [nz, zz]\nsignals: [bgp]", recorded)
+	sink := sdktest.Run(t, func(ctx context.Context, s *sdktest.Sink) error { return m.Run(ctx, s) })
+	sink.WaitFor(t, 1)
+	if h := m.Health(); h.Err != nil || h.Note != "IODA knows no country ZZ" {
+		t.Errorf("health %+v", h)
+	}
+}
+
+func TestAFailedReadShowsInHealth(t *testing.T) {
+	f, api := serve(t)
+	f.fail(http.StatusServiceUnavailable)
+	m := at(t, api, "", recorded)
+	sdktest.Run(t, func(ctx context.Context, s *sdktest.Sink) error { return m.Run(ctx, s) })
+	sdktest.Eventually(t, func() bool {
+		err := m.Health().Err
+		return err != nil && strings.Contains(err.Error(), "entities/query: 503 Service Unavailable")
+	})
+}
+
+func TestRetriesBackOffAndWaitAsLongAsIODAAsks(t *testing.T) {
+	busy := &busyError{path: "outages/events", wait: 2 * time.Minute}
+	for _, c := range []struct {
+		err            error
+		backoff, every time.Duration
+		want           time.Duration
+	}{
+		{errors.New("refused"), retryMin, 5 * time.Minute, retryMin},
+		{errors.New("refused"), 10 * time.Minute, 5 * time.Minute, 5 * time.Minute},
+		{busy, retryMin, 5 * time.Minute, 2 * time.Minute},
+		{busy, 4 * time.Minute, 5 * time.Minute, 4 * time.Minute},
+	} {
+		if got := retryIn(c.err, c.backoff, c.every); got != c.want {
+			t.Errorf("retryIn(%v, %v, %v) = %v, want %v", c.err, c.backoff, c.every, got, c.want)
+		}
+	}
 }

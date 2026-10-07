@@ -31,6 +31,7 @@ var routes = map[string]string{
 	"signals/raw/asn/9500?datasource=bgp":                     "ioda/asn-bgp.json",
 	"signals/raw/country/NZ?datasource=gtr-norm":              "ioda/nz-gtr-norm.json",
 	"entities/query?entityCode=NZ&entityType=country":         "source/v2/entities/query",
+	"entities/query?entityCode=NZ%2CZZ&entityType=country":    "source/v2/entities/query",
 	"outages/events?entityCode=NZ&entityType=country":         "source/v2/outages/events",
 	"signals/raw/country/NZ?datasource=bgp":                   "source/v2/signals/raw/country/NZ",
 }

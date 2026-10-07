@@ -1,3 +1,4 @@
-out/outages%2Fcountry/ET "Ethiopia" unknown at 8.03,39.09 code=ET
-out/outages%2Fcountry/NZ "New Zealand" unknown at -39.76,172.79 code=NZ
-out/outages%2Fcountry/TN "Tunisia" unknown at 33.69,9.01 code=TN
+out/outages%2Fcountry/ET "Ethiopia" ok at 8.03,39.09 code=ET ioda=https://ioda.inetintel.cc.gatech.edu/country/ET
+out/outages%2Fcountry/NZ "New Zealand" ok at -39.76,172.79 code=NZ ioda=https://ioda.inetintel.cc.gatech.edu/country/NZ
+out/outages%2Fcountry/TN "Tunisia" crit at 33.69,9.01 code=TN ioda=https://ioda.inetintel.cc.gatech.edu/country/TN
+  because ping-slash24 outage since 2026-09-29 23:20 UTC
