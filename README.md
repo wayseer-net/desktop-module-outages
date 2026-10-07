@@ -1,62 +1,104 @@
-# Wayseer module template
+# Wayseer module: outages
 
-A complete module for Wayseer Desktop to start your own from. It reads a JSON inventory from a
-URL, turns each item into an entity, links items that depend on each other, records their
-metrics, and turns status changes into events. It passes the SDK's conformance suite, runs as
-its own program, and signs into a package the app installs.
+Internet outages on Wayseer's map, from [IODA](https://ioda.inetintel.cc.gatech.edu/)
+(Internet Outage Detection and Analysis, Georgia Tech). It shows countries, their regions and
+networks (autonomous systems) with their health, charts IODA's signals for each, and turns
+IODA's outage events into events. It runs as its own program, from a signed package the
+marketplace publishes; it is not built into the app.
 
-## Start
+## What it reads
 
-Make your copy with GitHub's "Use this template", or with `gonew`, which also renames the Go
-module:
+IODA's public API v2, `https://api.ioda.inetintel.cc.gatech.edu/v2/`, which needs no key:
 
-```
-go run golang.org/x/tools/cmd/gonew@latest github.com/wayseer-net/desktop-module-template example.com/widget
-```
-
-Then rename what is still called `inventory`:
-
-1. The package in every `.go` file, and `Kind` in `module.go`.
-2. `cmd/wayseer-inventory`, and `PROGRAM` in the `Makefile` to match.
-3. In `manifest.yaml`: `id`, `name`, `description` and `namespace`. The `id` starts with your
-   developer certificate's namespace. The `namespace` is your certificate's for a package you
-   sign; for the marketplace, it is the one Wayseer allocates to the module.
-
-Check that the copy works before you change it:
-
-```
-make check
-```
-
-Wayseer's user guide, under "Writing a module", walks through the files and how to adapt them
-to your source.
-
-| File | Holds |
+| Request | For |
 |---|---|
-| `doc.go` | What the module reads, for `go doc`. |
-| `options.go` | The options, their defaults and their checks. |
-| `module.go` | `Info`, `Configure`, `Run`, `Health` and `Discover`: the lifecycle. |
-| `inventory.go` | Fetching the source and turning it into entities and edges. |
-| `series.go` | The metric catalogue and `QuerySeries`. |
-| `actions.go` | One example action. |
-| `module_test.go` | The conformance suite against an `httptest` server, and the module's own tests. |
-| `cmd/wayseer-inventory` | The program that serves the module to the app. |
-| `manifest.yaml` | What the module is and may do, for its signed package. |
+| `entities/query` | The countries, regions and networks watched, and the countries each network serves |
+| `outages/events` | Outages over the lookback, per entity type |
+| `signals/raw/<type>/<codes>` | One signal for every watched entity of a type at once |
 
-## Sign a package
+It reads one request at a time, every `interval`. Entities change rarely, so they are listed
+again only every six hours. Signals are read since the last read, less three hours, since IODA
+fills recent points late. IODA states no rate limit; a `429` is waited out as long as its
+`Retry-After` asks, and failures back off from 10 seconds up to the interval. A read of every
+country takes IODA about 25 seconds, so entities and outages are sent first and the series
+fill in after.
 
-You need Wayseer installed, and a developer key and certificate (the guide's "Getting a
-developer certificate"):
+It keeps only a working set in memory: the entities, each signal's points over the lookback,
+the outages last seen, and the last 1000 events sent. Nothing is written to disk.
 
+## What it shows
+
+| IODA | In Wayseer |
+|---|---|
+| Country | `outages/country` (drawn as a cluster), placed at its Natural Earth label point |
+| Region | `outages/region` (drawn as a node), placed at its Natural Earth label point, `member_of` its country |
+| Network (ASN) | `outages/asn` (drawn as a service), unplaced, `member_of` each watched country it serves |
+| Outage going on | The entity's status is `crit`, with which signals dropped and since when |
+| Outage first seen | An `outage` event at its start, `warn` below score 1,000, `error` below 100,000, else `critical` |
+| Outage seen going on, then over | An `outage-ended` event at its end, `info` |
+| Signal | A series `ioda.<signal>` per entity |
+
+Events carry the signal (`datasource`), detection `method`, IODA's `score`, `start`, `end` once
+over, and an `ioda` link to the outage on IODA's dashboard. Each entity has its `code` and an
+`ioda` link to its page; a network also has its `org`, its `addresses` and the `countries` IODA
+says it serves.
+
+| Metric | Unit | Kinds | IODA signal |
+|---|---|---|---|
+| `ioda.bgp` | count | all | /24 blocks visible in BGP to most full-feed peers |
+| `ioda.ping-slash24` | count | all | /24 blocks that answer active probing |
+| `ioda.merit-nt` | count | all | Unique source IPs a minute at the Merit network telescope |
+| `ioda.gtr-norm` | ratio | countries | Google Transparency Report traffic, normalised |
+
+IODA's other signals give their points as objects rather than numbers, and are not charted.
+
+An empty answer from IODA is an empty world, not an error. A watched code IODA doesn't know is
+a note in Health, such as `IODA knows no country ZZ`.
+
+## Options
+
+```yaml
+modules:
+  - kind: external
+    name: outages
+    options:
+      module: wayseer-labs/outages
+      options:
+        countries: [NZ, AU]          # none for every country
+        regions: true
+        asns: [9500]
+        signals: [bgp, ping-slash24]
 ```
-export WAYSEER_DEV_KEY=~/.config/wayseer/dev.pem
-export WAYSEER_DEV_CERT=~/.config/wayseer/dev.cert
-make sign
-```
 
-`make sign` builds the program and runs `wayseer dev sign`, which writes the package to
-`dist/`. For another platform, set `GOOS` and `GOARCH`. Raise `version` in `manifest.yaml`
-before signing again; `dev sign` never overwrites a package.
+| Option | Default | Meaning |
+|---|---|---|
+| `countries` | every country | ISO 3166-1 alpha-2 codes to watch, at most 300. |
+| `regions` | `false` | Also each listed country's regions; needs `countries`, at most 20 of them. |
+| `asns` | none | Autonomous systems to watch, at most 50. |
+| `signals` | `[bgp, ping-slash24, merit-nt]` | Which of `bgp`, `ping-slash24`, `merit-nt` and `gtr-norm` to chart. |
+| `interval` | `5m` | How often IODA is read; at least `1m`. |
+| `lookback` | `24h` | How far back outages and series reach, from `1h` to `168h`, and at least the interval. |
+| `timeout` | `1m` | Longest wait for one request, up to `5m`. |
+| `api` | IODA's API v2 | Another only for a mirror, or for tests. |
+
+## Data, licences and credit
+
+The data is IODA's. Its responses say:
+
+> This data is Copyright (c) 2021-2025 Georgia Tech Research Corporation. All Rights Reserved.
+
+IODA publishes no other terms for its API, which its own public dashboard uses. The module reads
+it as that dashboard does, names itself in its `User-Agent`, keeps what it reads only in memory,
+and links every entity and outage back to IODA. IODA is run by the Internet Intelligence Lab at
+the Georgia Institute of Technology; questions about the data go to `ioda-info@cc.gatech.edu`.
+
+Places are label points from [Natural Earth](https://www.naturalearthdata.com/) 1:10m (public
+domain), in `places/`: countries by their ISO code, and regions by the Natural Earth id IODA
+gives them. `scripts/places.go` writes them from Natural Earth's GeoJSON. A few of IODA's
+countries (`AN`, `AP`, `EU`) and regions have no point and stay unplaced.
+
+The test fixtures are a few small responses recorded from IODA, credited in
+`testdata/README.md`.
 
 ## Working on it
 
@@ -65,16 +107,38 @@ make check   # what CI runs: tests with the conformance suite, vet and lint for 
 make help    # every target
 ```
 
-The module imports only the SDK (`wayseer.dev/sdk`), the standard library and its own
-dependencies; `TestImportsOnlyTheSDK` keeps it that way. golangci-lint is pinned in
-`tools/go.mod`, and gitleaks runs at a pinned version through `go run`.
+The tests never reach IODA: they serve the recorded fixtures from `httptest`, with a clock set to
+when they were recorded. `TestConformance` runs the SDK's suite against `testdata/source` served
+as plain files, as the marketplace's sandbox serves it.
 
-`TestMakeSignPackagesTheModule` signs a package with throwaway keys. It needs Wayseer's own
-source beside this folder, in `../core`, so it skips in your copy; delete it if you like.
+The module imports only the SDK (`wayseer.dev/sdk`) and the standard library;
+`TestImportsOnlyTheSDK` keeps it that way. `TestMakeSignPackagesTheModule` needs Wayseer's own
+source in `../core`, and skips without it.
 
-To change the module alongside the SDK, use a Go workspace: `go.work` here with
-`use . ../sdk`. `go.work` is ignored by git.
+## Publishing
+
+The marketplace builds the module from a tag and runs the conformance suite in a sandbox with no
+network, serving `testdata/source` at `http://127.0.0.1:8080/`. The submission's options:
+
+```yaml
+conformance:
+  options: |
+    api: http://127.0.0.1:8080/v2
+    countries: [NZ]
+    signals: [bgp]
+  failing: |
+    api: http://127.0.0.1:1/v2
+  fixture: testdata/source
+```
+
+To sign a package yourself instead, with a developer key and certificate:
+
+```
+export WAYSEER_DEV_KEY=~/.config/wayseer/dev.pem
+export WAYSEER_DEV_CERT=~/.config/wayseer/dev.cert
+make sign
+```
 
 ## Licence
 
-MIT No Attribution; see `LICENSE`. Your copy is yours to license as you choose.
+MIT; see `LICENSE`.
