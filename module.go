@@ -42,6 +42,8 @@ type Module struct {
 	world    world           // as last sent
 	known    map[string]bool // outages seen last read, and whether each was going on
 	events   *sdk.EventLog   // sent, for QueryEvents
+	series   map[sdk.SeriesRef]*series
+	signaled time.Time // when signals were last read up to
 }
 
 // New makes an unconfigured module.
@@ -68,6 +70,7 @@ func (m *Module) Configure(_ context.Context, cfg sdk.Config) error {
 	m.api = newClient(o.API, o.Timeout)
 	m.listing, m.listedAt, m.world = world{}, time.Time{}, newWorld()
 	m.known, m.events = map[string]bool{}, sdk.NewEventLog(keepEvent)
+	m.series, m.signaled = map[sdk.SeriesRef]*series{}, time.Time{}
 	m.health.Store(&sdk.Health{})
 	return nil
 }
@@ -122,14 +125,32 @@ func (m *Module) refresh(ctx context.Context) (*sdk.ChangeSet, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
+	pts, err := m.readSignals(ctx, &st)
+	if err != nil {
+		return nil, "", err
+	}
+	return m.apply(&st, pts), strings.Join(st.w.notes, "; "), nil
+}
+
+// readSignals reads the signals since the last read, less their lag.
+func (m *Module) readSignals(ctx context.Context, st *state) (map[sdk.SeriesRef][]sdk.Point, error) {
+	m.mu.Lock()
+	c, o, since := m.api, m.opts, signalsSince(m.signaled, st.until, m.opts.Lookback)
+	m.mu.Unlock()
+	return fetchSignals(ctx, c, &st.w, &o, since, st.until)
+}
+
+// apply keeps a read and its points, and returns what changed with the outages' events.
+func (m *Module) apply(st *state, pts map[sdk.SeriesRef][]sdk.Point) *sdk.ChangeSet {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	evs, known := news(m.name, &st.w, st.outages, st.until, m.known)
-	m.world, m.known = st.w, known
+	m.world, m.known, m.signaled = st.w, known, st.until
+	m.record(pts, st.until.Add(-m.opts.Lookback))
 	m.events.Add(evs...)
 	cs := m.tracker.Changes(st.w.ents, st.w.edges, st.until)
 	cs.Events = evs
-	return cs, strings.Join(st.w.notes, "; "), nil
+	return cs
 }
 
 // state is one read of IODA: the entities with their status, and the outages behind it.
