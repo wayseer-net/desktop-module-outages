@@ -127,7 +127,7 @@ func fetchSignal(ctx context.Context, c *client, w *world, typ string, codes []s
 		"maxPoints": {strconv.Itoa(int(until.Sub(since)/signalStep) + 1)},
 	}
 	var groups [][]signal
-	if err := c.get(ctx, "signals/raw/"+typ+"/"+url.PathEscape(strings.Join(codes, ",")), q, &groups); err != nil {
+	if err := c.get(ctx, "signals/raw/"+typ+"/"+escapeAll(codes), q, &groups); err != nil {
 		return err
 	}
 	for _, g := range groups {
@@ -139,6 +139,15 @@ func fetchSignal(ctx context.Context, c *client, w *world, typ string, codes []s
 		}
 	}
 	return nil
+}
+
+// escapeAll is codes for a path, each escaped, joined by commas as IODA wants them.
+func escapeAll(codes []string) string {
+	esc := make([]string, len(codes))
+	for i, c := range codes {
+		esc[i] = url.PathEscape(c)
+	}
+	return strings.Join(esc, ",")
 }
 
 // series is one signal's points, oldest first, none older than the lookback.

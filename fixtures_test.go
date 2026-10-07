@@ -41,17 +41,22 @@ type fakeIODA struct {
 	t      *testing.T
 	mu     sync.Mutex
 	asked  map[string]int
-	status int // when set, every answer is this status
+	status int               // when set, every answer is this status
+	bodies map[string]string // answers in place of the fixtures, by request
 }
 
 func (f *fakeIODA) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	key := requestKey(r.URL)
 	f.mu.Lock()
 	f.asked[key]++
-	status := f.status
+	status, body, replaced := f.status, f.bodies[key], f.bodies[key] != ""
 	f.mu.Unlock()
-	if status != 0 {
+	switch {
+	case status != 0:
 		w.WriteHeader(status)
+		return
+	case replaced:
+		_, _ = w.Write([]byte(body))
 		return
 	}
 	name, ok := routes[key]
@@ -63,19 +68,26 @@ func (f *fakeIODA) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filepath.Join("testdata", name))
 }
 
-// requestKey is a request's path under /v2/ and its query, less the window and point count.
+// requestKey is a request's path under /v2/, as sent, and its query, less the window and point count.
 func requestKey(u *url.URL) string {
 	q := u.Query()
 	for _, k := range []string{"from", "until", "maxPoints", "format"} {
 		q.Del(k)
 	}
-	return strings.TrimPrefix(u.Path, "/v2/") + "?" + q.Encode()
+	return strings.TrimPrefix(u.EscapedPath(), "/v2/") + "?" + q.Encode()
 }
 
 func (f *fakeIODA) count(key string) int {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	return f.asked[key]
+}
+
+// answer replaces the fixture for one request with body.
+func (f *fakeIODA) answer(key, body string) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.bodies[key] = body
 }
 
 func (f *fakeIODA) fail(status int) {
@@ -87,7 +99,7 @@ func (f *fakeIODA) fail(status int) {
 // serve starts a fake IODA and returns it with its API's URL.
 func serve(t *testing.T) (*fakeIODA, string) {
 	t.Helper()
-	f := &fakeIODA{t: t, asked: map[string]int{}}
+	f := &fakeIODA{t: t, asked: map[string]int{}, bodies: map[string]string{}}
 	srv := httptest.NewServer(f)
 	t.Cleanup(srv.Close)
 	return f, srv.URL + "/v2"
