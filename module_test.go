@@ -109,3 +109,10 @@ func TestEntitiesAreSentBeforeTheSignalsAreRead(t *testing.T) {
 		return err != nil && strings.Contains(err.Error(), "the signal store is down")
 	})
 }
+
+func TestHealthDeclaresTheIntervalAsItsPace(t *testing.T) {
+	m := configured(t, "api: "+serveSource(t)+"\ncountries: [NZ]\ninterval: 10m")
+	if got := m.Health().Pace; got != 10*time.Minute {
+		t.Errorf("pace %v, want the interval", got)
+	}
+}

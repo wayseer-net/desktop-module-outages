@@ -3,7 +3,7 @@ id: wayseer-labs/outages
 name: Internet outages
 description: Internet outages from IODA (Georgia Tech) for countries, regions and networks.
 homepage: https://github.com/wayseer-net/desktop-module-outages
-version: 0.1.0
+version: 0.1.1
 contract: 1
 namespace: outages            # allocated to this module by the marketplace
 kinds:

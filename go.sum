@@ -62,5 +62,5 @@ google.golang.org/protobuf v1.36.12/go.mod h1:HTf+CrKn2C3g5S8VImy6tdcUvCska2kB7j
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
-wayseer.dev/sdk v0.1.0 h1:Oevf4JT3t+EhumszSjQ2PRkPGyS6WsN5KwA+xo2fxu4=
-wayseer.dev/sdk v0.1.0/go.mod h1:lLteZh2PPH2c/COCYGAc6lSOT6/bWdLik//cwWU1i9o=
+wayseer.dev/sdk v0.1.3 h1:c4si3W0lA6G4B2a9qf08Tda0KqOq5n0Ak2FK3gDA8DQ=
+wayseer.dev/sdk v0.1.3/go.mod h1:lLteZh2PPH2c/COCYGAc6lSOT6/bWdLik//cwWU1i9o=

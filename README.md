@@ -21,7 +21,8 @@ again only every six hours. Signals are read since the last read, less three hou
 fills recent points late. IODA states no rate limit; a `429` is waited out as long as its
 `Retry-After` asks, and failures back off from 10 seconds up to the interval. A read of every
 country takes IODA about 25 seconds, so entities and outages are sent first and the series
-fill in after.
+fill in after. Health declares the interval as the module's pace, so Wayseer doesn't call its
+data stale between reads.
 
 Connections to IODA's host use TLS 1.2: its server never answers the TLS 1.3 handshake Go sends,
 though it answers curl's. Any other `api` keeps Go's defaults.

@@ -2,7 +2,7 @@ module github.com/wayseer-net/desktop-module-outages
 
 go 1.27
 
-require wayseer.dev/sdk v0.1.0
+require wayseer.dev/sdk v0.1.3
 
 require (
 	github.com/ebitengine/purego v0.11.0 // indirect

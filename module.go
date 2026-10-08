@@ -71,7 +71,7 @@ func (m *Module) Configure(_ context.Context, cfg sdk.Config) error {
 	m.listing, m.listedAt, m.world = world{}, time.Time{}, newWorld()
 	m.known, m.events = map[string]bool{}, sdk.NewEventLog(keepEvent)
 	m.series, m.signaled = map[sdk.SeriesRef]*series{}, time.Time{}
-	m.health.Store(&sdk.Health{})
+	m.health.Store(&sdk.Health{Pace: o.Interval})
 	return nil
 }
 
@@ -103,7 +103,7 @@ func (m *Module) Run(ctx context.Context, sink sdk.Sink) error {
 			}
 			send, err = sink.Delta, m.readSignals(ctx)
 		}
-		m.health.Store(&sdk.Health{Err: err, Note: note})
+		m.health.Store(&sdk.Health{Err: err, Note: note, Pace: every})
 		if err != nil {
 			t.Reset(retryIn(err, wait, every))
 			wait = min(2*wait, every)
